@@ -11,6 +11,7 @@
 #include <libpmemobj.h>
 
 #include <persistent_chunk.h>
+#include <pmdk-include/libpmemobj++/pool.hpp>
 
 namespace rocksdb {
 
@@ -48,7 +49,7 @@ public:
 class FixedRangeTab
 {
 public:
-    FixedRangeTab();
+    FixedRangeTab(pmem::obj::pool_base& pop;);
     ~FixedRangeTab();
 
 public:
@@ -93,6 +94,8 @@ private:
     FixedRangeTab(const FixedRangeTab&) = delete;
     FixedRangeTab& operator=(const FixedRangeTab&) = delete;
 
+    pmem::obj::pool_base& pop_;
+
     FixedRangeChunkBasedCacheStats stat;
     freqUpdateInfo info;
 
@@ -102,7 +105,11 @@ private:
     size_t chunk_sum_size;
     const size_t MAX_CHUNK_SUM_SIZE;
 
+    // offset of all chunks are stored in this list
+    // TODO：直接使用list结构好像不能持久化,如何恢复？
     list<size_t> psttChunkList;
+
+    bool is_compaction_working;
 
 
 //    char *g_bloom_data;
